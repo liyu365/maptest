@@ -41,21 +41,19 @@
     }
     SiteMarker.prototype = new BMap.Overlay();
 
-    //实现初始化方法
+    //当调用map.addOverlay方法时，会调用此方法
     SiteMarker.prototype.initialize = function (map) {
         var _this = this;
         this.map = map;
-        //创建div元素，作为自定义覆盖物的容器
         var wrap = document.createElement("div");
         wrap.style.position = "absolute";
-        //可以根据参数设置元素外观
         wrap.style.width = this.width + "px";
         wrap.style.height = this.height + "px";
         wrap.style.background = 'yellow';
         wrap.style.zIndex = BMap.Overlay.getZIndex(this.point.lat);
-        //将div添加到覆盖物容器中
+        //将warp添加到覆盖物容器中
         map.getPanes().markerPane.appendChild(wrap);
-        //保存div实例
+        //保存warp实例
         this.wrap = wrap;
 
         wrap.addEventListener('click', function () {
@@ -66,7 +64,6 @@
             _this.startPosY = e.touches ? e.touches[0].clientY : e.screenY;
             _this.lastPosX = e.touches ? e.touches[0].clientX : e.screenX;
             _this.lastPosY = e.touches ? e.touches[0].clientY : e.screenY;
-            console.log(_this.startPosX);
         });
         wrap.addEventListener('touchmove', function (e) {
             _this.lastPosX = e.touches ? e.touches[0].clientX : e.screenX;
@@ -78,8 +75,8 @@
             }
         });
 
-        //需要将div元素作为方法的返回值，当调用该覆盖物的show、
-        //hide方法，或者对覆盖物进行移除时，API都将操作此元素。
+        //一定要将添加到覆盖物容器的元素返回
+        //当调用map.removeOverlay或者map.clearOverlays方法时，会将此处返回的元素删除
         return wrap;
     };
 
@@ -88,20 +85,20 @@
         alert("当前标记点的id: " + _this.id);
     };
 
-    //实现绘制方法
+    //将覆盖物定位到正确的位置，每当地图状态发生变化都会重新调用
     SiteMarker.prototype.draw = function () {
-        //根据地理坐标转换为像素坐标，并设置给容器
-        var position = this.map.pointToOverlayPixel(this.point);
+        var position = this.map.pointToOverlayPixel(this.point);   //根据地理坐标转换为像素坐标，并设置给容器
         this.wrap.style.left = position.x - this.width / 2 + "px";
         this.wrap.style.top = position.y - this.width / 2 + "px";
     };
 
+    //自定义覆盖物会自动继承Overlay的show和hide方法，方法会修改由initialize方法返回的DOM元素的style.display属性
+    //如果自定义覆盖物元素较为复杂，可以自己实现show和hide方法
     SiteMarker.prototype.show = function () {
         if (this.wrap) {
             this.wrap.style.display = "";
         }
     };
-
     SiteMarker.prototype.hide = function () {
         if (this.wrap) {
             this.wrap.style.display = "none";
@@ -110,11 +107,25 @@
 </script>
 
 <script type="text/javascript">
-    var map = new BMap.Map("container");
+    //初始化地图
+    var map = new BMap.Map("container", {
+        minZoom: 12,
+        maxZoom: 15
+    });
     map.addControl(new BMap.NavigationControl());
     map.centerAndZoom(new BMap.Point(117.210813, 39.14393), 13); //初始化地图，这里的坐标默认是天津中心坐标
+    map.addEventListener("dragend", function () {
+        var center = map.getCenter();
+        console.log("地图中心点变更为：" + center.lng + ", " + center.lat);
+    });
+    map.addEventListener("zoomend", function () {
+        console.log("地图缩放至：" + this.getZoom() + "级");
+    });
+    map.addEventListener("click", function (e) {
+        console.log(e.point.lng + ", " + e.point.lat);
+    });
 
-    //map.getCenter()可以获取当前地图中心点的经纬度
+    //向地图添加标记点
     var site_marker = new SiteMarker(new BMap.Point(117.211813, 39.15393), 1);
     var site_marker2 = new SiteMarker(new BMap.Point(117.209813, 39.13393), 2);
     map.addOverlay(site_marker);
@@ -125,7 +136,8 @@
     geolocation.getCurrentPosition(function (r) {
         if (this.getStatus() == BMAP_STATUS_SUCCESS) {
             var point = r.point;
-            map.centerAndZoom(point, 15);
+            //map.centerAndZoom(point, 15);
+            map.panTo(point);
             var self_marker = new BMap.Marker(point);
             map.addOverlay(self_marker);
         } else {
@@ -133,6 +145,5 @@
         }
     });
 </script>
-
 
 </html>
