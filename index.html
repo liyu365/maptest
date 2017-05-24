@@ -34,6 +34,61 @@
 </body>
 
 <script>
+    //获取用户经纬度
+    function runGetPosition(callback) {
+        if (!runGetPosition.running) {
+            runGetPosition.running = true;
+            //开始定位用户自身位置
+            var geolocation = new BMap.Geolocation();
+            geolocation.getCurrentPosition(function (r) {
+                if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+                    var point = r.point;
+                    map.panTo(point);
+                    if (runGetPosition.self_marker != null) {
+                        map.removeOverlay(runGetPosition.self_marker);
+                    }
+                    var self_marker = new BMap.Marker(point);
+                    runGetPosition.self_marker = self_marker;
+                    map.addOverlay(self_marker);
+                } else {
+                    switch (this.getStatus()) {
+                        case BMAP_STATUS_CITY_LIST:
+                            console.log("城市列表");
+                            break;
+                        case BMAP_STATUS_UNKNOWN_LOCATION:
+                            console.log("位置结果未知");
+                            break;
+                        case BMAP_STATUS_UNKNOWN_ROUTE:
+                            console.log("导航结果未知");
+                            break;
+                        case BMAP_STATUS_INVALID_KEY:
+                            console.log("非法秘钥");
+                            break;
+                        case BMAP_STATUS_INVALID_REQUEST:
+                            console.log("非法请求");
+                            break;
+                        case BMAP_STATUS_PERMISSION_DENIED:
+                            console.log("没有权限");
+                            break;
+                        case BMAP_STATUS_SERVICE_UNAVAILABLE:
+                            console.log("服务不可用");
+                            break;
+                        case BMAP_STATUS_TIMEOUT:
+                            console.log("请求超时");
+                            break;
+                    }
+                }
+                runGetPosition.running = false;
+                callback && callback(this.getStatus());
+            }, {enableHighAccuracy: true});
+        }
+    }
+    runGetPosition.running = false;
+    runGetPosition.self_marker = null;
+</script>
+
+<script>
+    //自定义覆盖物
     function SiteMarker(point, id) {
         this.point = point;
         this.width = 30;
@@ -112,14 +167,72 @@
     };
 </script>
 
+<script>
+    //自定义定位控件
+    function MyGEOLocationController(){
+        this.defaultAnchor = BMAP_ANCHOR_TOP_LEFT;
+        this.defaultOffset = new BMap.Size(10, 10);
+    }
+    MyGEOLocationController.prototype = new BMap.Control();
+    MyGEOLocationController.prototype.initialize = function(map){
+        var warp = document.createElement("div");
+        warp.innerHTML = '定位';
+        warp.style.cursor = "pointer";
+        warp.style.border = "1px solid gray";
+        warp.style.backgroundColor = "white";
+        warp.addEventListener('click',function(){
+            if(!runGetPosition.running){
+                warp.innerHTML = '定位中...';
+                runGetPosition(function(status){
+                    console.log(status);
+                    warp.innerHTML = '定位';
+                })
+            }
+        });
+        map.getContainer().appendChild(warp);
+        this.warp = warp;
+        // 将DOM元素返回
+        return warp;
+    }
+</script>
+
 <script type="text/javascript">
     //初始化地图
     var map = new BMap.Map("container", {
         minZoom: 12,
-        maxZoom: 15
+        maxZoom: 18
     });
-    map.addControl(new BMap.NavigationControl());
     map.centerAndZoom(new BMap.Point(117.210813, 39.14393), 13); //初始化地图，这里的坐标默认是天津中心坐标
+
+    //添加api自带的导航控件
+    map.addControl(new BMap.NavigationControl({
+        //靠左上角位置
+        anchor: BMAP_ANCHOR_BOTTOM_RIGHT,
+        //LARGE类型
+        type: BMAP_NAVIGATION_CONTROL_LARGE,
+        //启用显示定位
+        enableGeolocation: false
+    }));
+
+    //添加api自带的定位控件
+    /*var geolocationControl = new BMap.GeolocationControl({
+        showAddressBar:false,
+        enableAutoLocation:false
+    });
+    geolocationControl.addEventListener("locationSuccess", function(e){
+        console.log(e.target.wD);  //经纬度
+        console.log(e.addressComponent);  //地址对象
+    });
+    geolocationControl.addEventListener("locationError",function(e){
+        console.log(e.message);
+    });
+    map.addControl(geolocationControl);*/
+
+    //添加自定义定位控件
+    var myGEOController = new MyGEOLocationController();
+    map.addControl(myGEOController);
+
+    //监听地图回调
     map.addEventListener("dragend", function () {
         var center = map.getCenter();
         console.log("地图中心点变更为：" + center.lng + ", " + center.lat);
@@ -138,43 +251,9 @@
     map.addOverlay(site_marker2);
 
     //开始定位用户自身位置
-    var geolocation = new BMap.Geolocation();
-    geolocation.getCurrentPosition(function (r) {
-        if (this.getStatus() == BMAP_STATUS_SUCCESS) {
-            var point = r.point;
-            //map.centerAndZoom(point, 15);
-            map.panTo(point);
-            var self_marker = new BMap.Marker(point);
-            map.addOverlay(self_marker);
-        } else {
-            switch (this.getStatus()) {
-                case BMAP_STATUS_CITY_LIST:
-                    console.log("城市列表");
-                    break;
-                case BMAP_STATUS_UNKNOWN_LOCATION:
-                    console.log("位置结果未知");
-                    break;
-                case BMAP_STATUS_UNKNOWN_ROUTE:
-                    console.log("导航结果未知");
-                    break;
-                case BMAP_STATUS_INVALID_KEY:
-                    console.log("非法秘钥");
-                    break;
-                case BMAP_STATUS_INVALID_REQUEST:
-                    console.log("非法请求");
-                    break;
-                case BMAP_STATUS_PERMISSION_DENIED:
-                    console.log("没有权限");
-                    break;
-                case BMAP_STATUS_SERVICE_UNAVAILABLE:
-                    console.log("服务不可用");
-                    break;
-                case BMAP_STATUS_TIMEOUT:
-                    console.log("请求超时");
-                    break;
-            }
-        }
-    }, {enableHighAccuracy: true});
+    if(!runGetPosition.running){
+        runGetPosition();
+    }
 </script>
 
 </html>
