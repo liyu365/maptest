@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>百度地图测试</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <style type="text/css">
+        html {
+            height: 100%
+        }
+
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #container {
+            height: 100%
+        }
+    </style>
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=dm65KD93tW9zmcZys9YvKIUj"></script>
+</head>
+
+<body>
+    <div id="container"></div>
+</body>
+
+<script>
+    function SiteMarker(point,id) {
+        this.point = point;
+        this.width = 30;
+        this.height = 30;
+        this.id = id;
+        this.clickFlag = false;
+    }
+    SiteMarker.prototype = new BMap.Overlay();
+
+    //实现初始化方法
+    SiteMarker.prototype.initialize = function (map) {
+        var _this = this;
+        this.map = map;
+        //创建div元素，作为自定义覆盖物的容器
+        var wrap = document.createElement("div");
+        wrap.style.position = "absolute";
+        //可以根据参数设置元素外观
+        wrap.style.width = this.width + "px";
+        wrap.style.height = this.height + "px";
+        wrap.style.background = 'red';
+        wrap.style.zIndex = BMap.Overlay.getZIndex(this.point.lat);
+        //将div添加到覆盖物容器中
+        map.getPanes().markerPane.appendChild(wrap);
+        //保存div实例
+        this.wrap = wrap;
+
+        wrap.addEventListener('click',function(){
+            _this.showDetail();
+        });
+        wrap.addEventListener('touchstart',function(){
+            _this.clickFlag = true;
+        });
+        wrap.addEventListener('touchmove',function(){
+            _this.clickFlag = false;
+        });
+        wrap.addEventListener('touchend',function(){
+            if(_this.clickFlag){
+
+            }
+            _this.showDetail();
+            _this.clickFlag = false;
+        });
+
+        //需要将div元素作为方法的返回值，当调用该覆盖物的show、
+        //hide方法，或者对覆盖物进行移除时，API都将操作此元素。
+        return wrap;
+    };
+
+    SiteMarker.prototype.showDetail = function(){
+        var _this = this;
+        alert("当前标记点的id: " + _this.id);
+    };
+
+    //实现绘制方法
+    SiteMarker.prototype.draw = function () {
+        //根据地理坐标转换为像素坐标，并设置给容器
+        var position = this.map.pointToOverlayPixel(this.point);
+        this.wrap.style.left = position.x - this.width / 2 + "px";
+        this.wrap.style.top = position.y - this.width / 2 + "px";
+    };
+
+    SiteMarker.prototype.show = function () {
+        if (this.wrap) {
+            this.wrap.style.display = "";
+        }
+    };
+
+    SiteMarker.prototype.hide = function () {
+        if (this.wrap) {
+            this.wrap.style.display = "none";
+        }
+    };
+</script>
+
+<script type="text/javascript">
+    var map = new BMap.Map("container");
+    map.addControl(new BMap.NavigationControl());
+    map.centerAndZoom(new BMap.Point(117.210813, 39.14393), 13); //初始化地图，这里的坐标默认是天津中心坐标
+
+    //map.getCenter()可以获取当前地图中心点的经纬度
+    var site_marker = new SiteMarker(new BMap.Point(117.211813, 39.15393), 1);
+    var site_marker2 = new SiteMarker(new BMap.Point(117.209813, 39.13393), 2);
+    map.addOverlay(site_marker);
+    map.addOverlay(site_marker2);
+
+    //开始定位用户自身位置
+    var geolocation = new BMap.Geolocation();
+    geolocation.getCurrentPosition(function (r) {
+        if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+            var point = r.point;
+            map.centerAndZoom(point, 15);
+            var self_marker = new BMap.Marker(point);
+            map.addOverlay(self_marker);
+        } else {
+            alert("用户定位失败");
+        }
+    });
+</script>
+
+
+
+</html>
