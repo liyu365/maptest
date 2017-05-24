@@ -3,8 +3,9 @@
 
 <head>
     <title>百度地图测试</title>
-    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
     <style type="text/css">
         html {
             height: 100%
@@ -24,16 +25,19 @@
 </head>
 
 <body>
-    <div id="container"></div>
+<div id="container"></div>
 </body>
 
 <script>
-    function SiteMarker(point,id) {
+    function SiteMarker(point, id) {
         this.point = point;
         this.width = 30;
         this.height = 30;
         this.id = id;
-        this.clickFlag = false;
+        this.startPosX = 0;
+        this.startPosY = 0;
+        this.lastPosX = 0;
+        this.lastPosY = 0;
     }
     SiteMarker.prototype = new BMap.Overlay();
 
@@ -54,21 +58,24 @@
         //保存div实例
         this.wrap = wrap;
 
-        wrap.addEventListener('click',function(){
+        wrap.addEventListener('click', function () {
             _this.showDetail();
         });
-        wrap.addEventListener('touchstart',function(){
-            _this.clickFlag = true;
+        wrap.addEventListener('touchstart', function (e) {
+            _this.startPosX = e.touches ? e.touches[0].clientX : e.screenX;
+            _this.startPosY = e.touches ? e.touches[0].clientY : e.screenY;
+            _this.lastPosX = e.touches ? e.touches[0].clientX : e.screenX;
+            _this.lastPosY = e.touches ? e.touches[0].clientY : e.screenY;
+            console.log(_this.startPosX);
         });
-        wrap.addEventListener('touchmove',function(){
-            _this.clickFlag = false;
+        wrap.addEventListener('touchmove', function (e) {
+            _this.lastPosX = e.touches ? e.touches[0].clientX : e.screenX;
+            _this.lastPosY = e.touches ? e.touches[0].clientY : e.screenY;
         });
-        wrap.addEventListener('touchend',function(){
-            if(_this.clickFlag){
-
+        wrap.addEventListener('touchend', function (e) {
+            if (Math.abs(_this.lastPosX - _this.startPosX) < 5 && Math.abs(_this.lastPosY - _this.startPosY) < 5) {
+                _this.showDetail();
             }
-            _this.showDetail();
-            _this.clickFlag = false;
         });
 
         //需要将div元素作为方法的返回值，当调用该覆盖物的show、
@@ -76,7 +83,7 @@
         return wrap;
     };
 
-    SiteMarker.prototype.showDetail = function(){
+    SiteMarker.prototype.showDetail = function () {
         var _this = this;
         alert("当前标记点的id: " + _this.id);
     };
@@ -126,7 +133,6 @@
         }
     });
 </script>
-
 
 
 </html>
