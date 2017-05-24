@@ -200,7 +200,8 @@
     //初始化地图
     var map = new BMap.Map("container", {
         minZoom: 12,
-        maxZoom: 18
+        maxZoom: 18,
+        enableHighResolution: false
     });
     map.centerAndZoom(new BMap.Point(117.210813, 39.14393), 13); //初始化地图，这里的坐标默认是天津中心坐标
 
