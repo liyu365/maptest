@@ -136,25 +136,31 @@
 
 <script>
     //获取用户经纬度
-    function runGetPosition(){
-        var geolocation = new qq.maps.Geolocation("MPKBZ-OFYHO-OU3WY-S6YLK-I5WG7-XJFEK", "myapp");
-        geolocation.getIpLocation(function(position){
-            map.setCenter(new qq.maps.LatLng(position.lat, position.lng));
-            if(init_self_overlay){
-                init_self_overlay.setMap(null);
-                init_self_overlay = null;
-            }
-            if(runGetPosition.self_overlay){
-                runGetPosition.self_overlay.setMap(null);
-                runGetPosition.self_overlay = null;
-            }
-            runGetPosition.self_overlay = new SelfOverlay(new qq.maps.LatLng(position.lat, position.lng));
-            runGetPosition.self_overlay.setMap(map);
-        }, function(){
-
-        });
+    function runGetPosition(callback) {
+        if (!runGetPosition.running) {
+            runGetPosition.running = true;
+            var geolocation = new qq.maps.Geolocation("MPKBZ-OFYHO-OU3WY-S6YLK-I5WG7-XJFEK", "myapp");
+            geolocation.getIpLocation(function (position) {
+                map.setCenter(new qq.maps.LatLng(position.lat, position.lng));
+                if (init_self_overlay) {
+                    init_self_overlay.setMap(null);
+                    init_self_overlay = null;
+                }
+                if (runGetPosition.self_overlay) {
+                    runGetPosition.self_overlay.setMap(null);
+                    runGetPosition.self_overlay = null;
+                }
+                runGetPosition.self_overlay = new SelfOverlay(new qq.maps.LatLng(position.lat, position.lng));
+                runGetPosition.self_overlay.setMap(map);
+                callback && callback();
+                runGetPosition.running = false;
+            }, function () {
+                runGetPosition.running = false;
+            });
+        }
     }
     runGetPosition.self_overlay = null;
+    runGetPosition.running = false;
 </script>
 
 <script>
@@ -173,7 +179,7 @@
 </script>
 
 <script>
-    //自定义控件
+    //自定义控件——显示缩放级别
     function CustomZoomControl(controlDiv, map) {
         controlDiv.style.padding = "5px";
         controlDiv.style.backgroundColor = "#FFFFFF";
@@ -195,6 +201,27 @@
     var customZoomControl = new CustomZoomControl(customZoomDiv, map);
     //将控件添加到controls栈变量并将其设置在顶部位置
     map.controls[qq.maps.ControlPosition.TOP_CENTER].push(customZoomDiv);
+</script>
+
+<script>
+    //自定义控件——定位
+    function CustomGetPositionControl(controlDiv) {
+        controlDiv.style.padding = "5px";
+        controlDiv.style.backgroundColor = "#FFFFFF";
+        controlDiv.style.border = "2px solid #86ACF2";
+        controlDiv.innerHTML = '定位'
+    }
+
+    var customGetPositionDiv = document.createElement("div");
+    CustomGetPositionControl(customGetPositionDiv);
+    map.controls[qq.maps.ControlPosition.TOP_LEFT].push(customGetPositionDiv);
+
+    customGetPositionDiv.addEventListener('click', function () {
+        customGetPositionDiv.innerHTML = '定位...';
+        runGetPosition(function(){
+            customGetPositionDiv.innerHTML = '定位';
+        });
+    });
 </script>
 
 <script>
