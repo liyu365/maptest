@@ -4,7 +4,8 @@
 <head>
     <title>百度地图测试</title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
     <meta http-equiv="Cache-Control" content="no-cache,must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta name="format-detection" content="telephone=no"/>
@@ -79,18 +80,18 @@
 </head>
 
 <body>
-    <div id="map_app">
-        <div class="header">header</div>
-        <div id="map_container">
-            <div id="real_map"></div>
-        </div>
-        <div class="footer">footer</div>
+<div id="map_app">
+    <div class="header">header</div>
+    <div id="map_container">
+        <div id="real_map"></div>
     </div>
+    <div class="footer">footer</div>
+</div>
 </body>
 
 <script>
     //创建maker需要用的icon
-    var self_icon =  new BMap.Icon("./self_icon.png", new BMap.Size(23, 31), {
+    var self_icon = new BMap.Icon("./self_icon.png", new BMap.Size(23, 31), {
         offset: new BMap.Size(12, 31)
     });
 </script>
@@ -109,7 +110,7 @@
                     if (runGetPosition.self_marker != null) {
                         map.removeOverlay(runGetPosition.self_marker);
                     }
-                    if(init_marker){
+                    if (init_marker) {
                         map.removeOverlay(init_marker);
                     }
                     //var self_marker = new BMap.Marker(point);
@@ -237,21 +238,21 @@
 
 <script>
     //自定义定位控件
-    function MyGEOLocationController(){
+    function MyGEOLocationController() {
         this.defaultAnchor = BMAP_ANCHOR_TOP_LEFT;
         this.defaultOffset = new BMap.Size(10, 10);
     }
     MyGEOLocationController.prototype = new BMap.Control();
-    MyGEOLocationController.prototype.initialize = function(map){
+    MyGEOLocationController.prototype.initialize = function (map) {
         var warp = document.createElement("div");
         warp.innerHTML = '定位';
         warp.style.cursor = "pointer";
         warp.style.border = "1px solid gray";
         warp.style.backgroundColor = "white";
-        warp.addEventListener('click',function(){
-            if(!runGetPosition.running){
+        warp.addEventListener('click', function () {
+            if (!runGetPosition.running) {
                 warp.innerHTML = '定位中...';
-                runGetPosition(function(status){
+                runGetPosition(function (status) {
                     console.log(status);
                     warp.innerHTML = '定位';
                 })
@@ -288,17 +289,17 @@
 
     //添加api自带的定位控件
     /*var geolocationControl = new BMap.GeolocationControl({
-        showAddressBar:false,
-        enableAutoLocation:false
-    });
-    geolocationControl.addEventListener("locationSuccess", function(e){
-        console.log(e.target.wD);  //经纬度
-        console.log(e.addressComponent);  //地址对象
-    });
-    geolocationControl.addEventListener("locationError",function(e){
-        console.log(e.message);
-    });
-    map.addControl(geolocationControl);*/
+     showAddressBar:false,
+     enableAutoLocation:false
+     });
+     geolocationControl.addEventListener("locationSuccess", function(e){
+     console.log(e.target.wD);  //经纬度
+     console.log(e.addressComponent);  //地址对象
+     });
+     geolocationControl.addEventListener("locationError",function(e){
+     console.log(e.message);
+     });
+     map.addControl(geolocationControl);*/
 
     //添加自定义定位控件
     var myGEOController = new MyGEOLocationController();
@@ -323,7 +324,7 @@
     map.addOverlay(site_marker2);
 
     //开始定位用户自身位置
-    if(!runGetPosition.running){
+    if (!runGetPosition.running) {
         runGetPosition();
     }
 </script>
