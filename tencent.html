@@ -140,7 +140,7 @@
         if (!runGetPosition.running) {
             runGetPosition.running = true;
             var geolocation = new qq.maps.Geolocation("MPKBZ-OFYHO-OU3WY-S6YLK-I5WG7-XJFEK", "myapp");
-            geolocation.getIpLocation(function (position) {
+            geolocation.getLocation(function (position) {
                 map.setCenter(new qq.maps.LatLng(position.lat, position.lng));
                 if (init_self_overlay) {
                     init_self_overlay.setMap(null);
