@@ -92,7 +92,8 @@
 <script>
     //创建maker需要用的icon
     var self_icon = new BMap.Icon("./self_icon.png", new BMap.Size(23, 31), {
-        offset: new BMap.Size(12, 31)
+        anchor: new BMap.Size(11, 15),  //图标与地理位置的关系
+        imageOffset:new BMap.Size(0, 0)  //图片相对于可视区域的偏移值
     });
 </script>
 
@@ -110,8 +111,8 @@
                     if (runGetPosition.self_marker != null) {
                         map.removeOverlay(runGetPosition.self_marker);
                     }
-                    if (init_marker) {
-                        map.removeOverlay(init_marker);
+                    if (init_self_marker) {
+                        map.removeOverlay(init_self_marker);
                     }
                     //var self_marker = new BMap.Marker(point);
                     //创建标注
@@ -274,8 +275,8 @@
     });
     var init_point = new BMap.Point(117.210813, 39.14393);  //这里的坐标默认是天津中心坐标
     map.centerAndZoom(init_point, 13);
-    var init_marker = new BMap.Marker(init_point, {icon: self_icon});  //创建初始的城市中心标注
-    map.addOverlay(init_marker);
+    var init_self_marker = new BMap.Marker(init_point, {icon: self_icon});  //创建初始的城市中心标注
+    map.addOverlay(init_self_marker);
 
     //添加api自带的导航控件
     map.addControl(new BMap.NavigationControl({
