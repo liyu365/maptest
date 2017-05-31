@@ -90,20 +90,86 @@
 </body>
 
 <script>
+    //自定义覆盖物——用户
+    function SelfOverlay(position) {
+        this.position = position;
+    }
+    SelfOverlay.prototype = new qq.maps.Overlay();
+    //定义construct,实现这个接口来初始化自定义的Dom元素
+    SelfOverlay.prototype.construct = function () {
+        var div = this.div = document.createElement("div");
+        var divStyle = this.div.style;
+        divStyle.position = "absolute";
+        divStyle.width = "24px";
+        divStyle.height = "24px";
+        divStyle.backgroundColor = "#FFFFFF";
+        divStyle.border = "1px solid #000000";
+        divStyle.textAlign = "center";
+        divStyle.lineHeight = "24px";
+        divStyle.borderRadius = "15px";
+        divStyle.cursor = "pointer";
+        this.div.innerHTML = '我';
+        //将dom添加到覆盖物层
+        var panes = this.getPanes();
+        //设置panes的层级，overlayMouseTarget可接收点击事件
+        panes.overlayMouseTarget.appendChild(div);
+        this.div.onclick = function () {
+            alert('这是用户自身');
+        }
+    };
+    //实现draw接口来绘制和更新自定义的dom元素
+    SelfOverlay.prototype.draw = function () {
+        var overlayProjection = this.getProjection();
+        //返回覆盖物容器的相对像素坐标
+        var pixel = overlayProjection.fromLatLngToDivPixel(this.position);
+        var divStyle = this.div.style;
+        divStyle.left = pixel.x - 12 + "px";
+        divStyle.top = pixel.y - 12 + "px";
+    };
+    //实现destroy接口来删除自定义的Dom元素，此方法会在setMap(null)后被调用
+    SelfOverlay.prototype.destroy = function () {
+        this.div.onclick = null;
+        this.div.parentNode.removeChild(this.div);
+        this.div = null
+    };
+</script>
+
+<script>
+    //获取用户经纬度
+    function runGetPosition(){
+        var geolocation = new qq.maps.Geolocation("MPKBZ-OFYHO-OU3WY-S6YLK-I5WG7-XJFEK", "myapp");
+        geolocation.getIpLocation(function(position){
+            map.setCenter(new qq.maps.LatLng(position.lat, position.lng));
+            if(init_self_overlay){
+                init_self_overlay.setMap(null);
+                init_self_overlay = null;
+            }
+            if(runGetPosition.self_overlay){
+                runGetPosition.self_overlay.setMap(null);
+                runGetPosition.self_overlay = null;
+            }
+            runGetPosition.self_overlay = new SelfOverlay(new qq.maps.LatLng(position.lat, position.lng));
+            runGetPosition.self_overlay.setMap(map);
+        }, function(){
+
+        });
+    }
+    runGetPosition.self_overlay = null;
+</script>
+
+<script>
     //初始化地图
     var map = new qq.maps.Map(document.getElementById("real_map"), {
-        center: new qq.maps.LatLng(39.14393, 117.210813),
+        center: new qq.maps.LatLng(39.13668, 117.21006),  //默认为天津站坐标
         zoom: 14,
         mapTypeId: qq.maps.MapTypeId.ROADMAP
     });
 
-    //开始定位
-    var geolocation = new qq.maps.Geolocation("MPKBZ-OFYHO-OU3WY-S6YLK-I5WG7-XJFEK", "myapp");
-    geolocation.getIpLocation(function(position){
-        map.setCenter(new qq.maps.LatLng(position.lat, position.lng))
-    }, function(){
+    //初始化用户当前坐标标注
+    var init_self_overlay = new SelfOverlay(new qq.maps.LatLng(39.13668, 117.21006), 0);
+    init_self_overlay.setMap(map);
 
-    })
+    runGetPosition();
 </script>
 
 <script>
@@ -112,9 +178,7 @@
         controlDiv.style.padding = "5px";
         controlDiv.style.backgroundColor = "#FFFFFF";
         controlDiv.style.border = "2px solid #86ACF2";
-
         controlDiv.index = 1;//设置在当前布局中的位置
-
         function update() {
             var currentZoom = map.getZoom();
             controlDiv.innerHTML = "地图缩放级别：" + currentZoom;
@@ -125,7 +189,6 @@
         //添加dom监听事件  一旦zoom的缩放级别放生变化则出发update函数
         qq.maps.event.addDomListener(map, "zoom_changed", update);
     }
-
     //创建div元素
     var customZoomDiv = document.createElement("div");
     //获取控件接口设置控件
@@ -154,66 +217,12 @@
         map: map
     });
 
-    qq.maps.event.addListener(marker, 'click', function() {
+    qq.maps.event.addListener(marker, 'click', function () {
         info.open();
-        info.setContent('<div style="text-align:center;white-space:nowrap;'+
-                'margin:10px;">单击标记</div>');
+        info.setContent('<div style="text-align:center;white-space:nowrap;margin:10px;">单击标记</div>');
         info.setPosition(new qq.maps.LatLng(39.916527, 116.397128));
     });
 
     marker.setIcon(markerIcon);
 </script>
-
-<script>
-    //自定义覆盖物
-    function CustomOverlay(position, index) {
-        this.index = index;
-        this.position = position;
-    }
-    CustomOverlay.prototype = new qq.maps.Overlay();
-    //定义construct,实现这个接口来初始化自定义的Dom元素
-    CustomOverlay.prototype.construct = function() {
-        var div = this.div = document.createElement("div");
-        var divStyle = this.div.style;
-        divStyle.position = "absolute";
-        divStyle.width = "24px";
-        divStyle.height = "24px";
-        divStyle.backgroundColor = "#FFFFFF";
-        divStyle.border = "1px solid #000000";
-        divStyle.textAlign = "center";
-        divStyle.lineHeight = "24px";
-        divStyle.borderRadius = "15px";
-        divStyle.cursor = "pointer";
-        this.div.innerHTML = this.index;
-        //将dom添加到覆盖物层
-        var panes = this.getPanes();
-        //设置panes的层级，overlayMouseTarget可接收点击事件
-        panes.overlayMouseTarget.appendChild(div);
-
-        var self = this;
-        this.div.onclick = function() {
-            alert(self.index);
-        }
-    };
-    //实现draw接口来绘制和更新自定义的dom元素
-    CustomOverlay.prototype.draw = function() {
-        var overlayProjection = this.getProjection();
-        //返回覆盖物容器的相对像素坐标
-        var pixel = overlayProjection.fromLatLngToDivPixel(this.position);
-        var divStyle = this.div.style;
-        divStyle.left = pixel.x - 12 + "px";
-        divStyle.top = pixel.y - 12 + "px";
-    };
-    //实现destroy接口来删除自定义的Dom元素，此方法会在setMap(null)后被调用
-    CustomOverlay.prototype.destroy = function() {
-        this.div.onclick = null;
-        this.div.parentNode.removeChild(this.div);
-        this.div = null
-    };
-    var latlng = map.getCenter();
-    var overlay = new CustomOverlay(latlng, 0);
-    overlay.setMap(map);
-</script>
-
-
 </html>
