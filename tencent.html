@@ -90,6 +90,35 @@
 </body>
 
 <script>
+    //获取用户经纬度
+    function runGetPosition(callback) {
+        if (!runGetPosition.running) {
+            runGetPosition.running = true;
+            var geolocation = new qq.maps.Geolocation("MPKBZ-OFYHO-OU3WY-S6YLK-I5WG7-XJFEK", "myapp");
+            geolocation.getLocation(function (position) {
+                map.setCenter(new qq.maps.LatLng(position.lat, position.lng));
+                if (init_self_overlay) {
+                    init_self_overlay.setMap(null);
+                    init_self_overlay = null;
+                }
+                if (runGetPosition.self_overlay) {
+                    runGetPosition.self_overlay.setMap(null);
+                    runGetPosition.self_overlay = null;
+                }
+                runGetPosition.self_overlay = new SelfOverlay(new qq.maps.LatLng(position.lat, position.lng));
+                runGetPosition.self_overlay.setMap(map);
+                callback && callback();
+                runGetPosition.running = false;
+            }, function () {
+                runGetPosition.running = false;
+            });
+        }
+    }
+    runGetPosition.self_overlay = null;
+    runGetPosition.running = false;
+</script>
+
+<script>
     //自定义覆盖物——用户
     function SelfOverlay(position) {
         this.position = position;
@@ -148,17 +177,15 @@
         divStyle.position = "absolute";
         divStyle.width = "24px";
         divStyle.height = "24px";
-        divStyle.backgroundColor = "yellow";
-        divStyle.textAlign = "center";
-        divStyle.lineHeight = "24px";
         divStyle.cursor = "pointer";
+        this.div.className = 'site_marker';
         this.div.innerHTML = this.id;
         //将dom添加到覆盖物层
         var panes = this.getPanes();
         //设置panes的层级，overlayMouseTarget可接收点击事件
         panes.overlayMouseTarget.appendChild(div);
         this.div.onclick = function () {
-            alert(_this.id);
+            _this.showDetail();
         }
     };
     //实现draw接口来绘制和更新自定义的dom元素
@@ -176,35 +203,10 @@
         this.div.parentNode.removeChild(this.div);
         this.div = null
     };
-</script>
-
-<script>
-    //获取用户经纬度
-    function runGetPosition(callback) {
-        if (!runGetPosition.running) {
-            runGetPosition.running = true;
-            var geolocation = new qq.maps.Geolocation("MPKBZ-OFYHO-OU3WY-S6YLK-I5WG7-XJFEK", "myapp");
-            geolocation.getLocation(function (position) {
-                map.setCenter(new qq.maps.LatLng(position.lat, position.lng));
-                if (init_self_overlay) {
-                    init_self_overlay.setMap(null);
-                    init_self_overlay = null;
-                }
-                if (runGetPosition.self_overlay) {
-                    runGetPosition.self_overlay.setMap(null);
-                    runGetPosition.self_overlay = null;
-                }
-                runGetPosition.self_overlay = new SelfOverlay(new qq.maps.LatLng(position.lat, position.lng));
-                runGetPosition.self_overlay.setMap(map);
-                callback && callback();
-                runGetPosition.running = false;
-            }, function () {
-                runGetPosition.running = false;
-            });
-        }
-    }
-    runGetPosition.self_overlay = null;
-    runGetPosition.running = false;
+    SiteOverlay.prototype.showDetail = function () {
+        var _this = this;
+        alert("当前标记点的id: " + _this.id);
+    };
 </script>
 
 <script>
@@ -212,11 +214,23 @@
     var map = new qq.maps.Map(document.getElementById("real_map"), {
         center: new qq.maps.LatLng(39.13668, 117.21006),  //默认为天津站坐标
         zoom: 14,
-        mapTypeId: qq.maps.MapTypeId.ROADMAP
+        minZoom: 11,
+        maxZoom: 15,
+        //地图类型控件的初始化选项
+        mapTypeControlOptions: {
+            //地图类型控件中的类型选项，ROADMAP显示普通街道地图，SATELLITE显示卫星图像，HYBRID显示卫星图像上的主要街道透明层
+            //此处全部都不显示
+            mapTypeIds: [
+                /*qq.maps.MapTypeId.ROADMAP,
+                 qq.maps.MapTypeId.SATELLITE,
+                 qq.maps.MapTypeId.HYBRID*/
+            ],
+            position: qq.maps.ControlPosition.TOP_CENTER
+        }
     });
 
-    //初始化用户当前坐标标注
-    var init_self_overlay = new SelfOverlay(new qq.maps.LatLng(39.13668, 117.21006), 0);
+    //初始化用户覆盖物
+    var init_self_overlay = new SelfOverlay(new qq.maps.LatLng(39.13668, 117.21006));
     init_self_overlay.setMap(map);
 
     //向地图添加site覆盖物
@@ -225,15 +239,19 @@
     var site_overlay2 = new SiteOverlay(new qq.maps.LatLng(39.14668, 117.21006), 2);
     site_overlay2.setMap(map);
 
-    runGetPosition();
+    if (!runGetPosition.running) {
+        runGetPosition();
+    }
 </script>
 
 <script>
-    //自定义控件——显示缩放级别
+    //自定义控件——显示当前缩放级别
     function CustomZoomControl(controlDiv, map) {
         controlDiv.style.padding = "5px";
         controlDiv.style.backgroundColor = "#FFFFFF";
         controlDiv.style.border = "2px solid #86ACF2";
+        controlDiv.style.marginTop = '10px';
+        controlDiv.style.marginRight = '10px';
         controlDiv.index = 1;//设置在当前布局中的位置
         function update() {
             var currentZoom = map.getZoom();
@@ -250,7 +268,7 @@
     //获取控件接口设置控件
     var customZoomControl = new CustomZoomControl(customZoomDiv, map);
     //将控件添加到controls栈变量并将其设置在顶部位置
-    map.controls[qq.maps.ControlPosition.TOP_CENTER].push(customZoomDiv);
+    map.controls[qq.maps.ControlPosition.TOP_RIGHT].push(customZoomDiv);
 </script>
 
 <script>
@@ -259,6 +277,8 @@
         controlDiv.style.padding = "5px";
         controlDiv.style.backgroundColor = "#FFFFFF";
         controlDiv.style.border = "2px solid #86ACF2";
+        controlDiv.style.marginTop = '10px';
+        controlDiv.style.marginLeft = '10px';
         controlDiv.innerHTML = '定位'
     }
 
@@ -267,10 +287,12 @@
     map.controls[qq.maps.ControlPosition.TOP_LEFT].push(customGetPositionDiv);
 
     customGetPositionDiv.addEventListener('click', function () {
-        customGetPositionDiv.innerHTML = '定位...';
-        runGetPosition(function () {
-            customGetPositionDiv.innerHTML = '定位';
-        });
+        if (!runGetPosition.running) {
+            customGetPositionDiv.innerHTML = '定位...';
+            runGetPosition(function () {
+                customGetPositionDiv.innerHTML = '定位';
+            });
+        }
     });
 </script>
 
