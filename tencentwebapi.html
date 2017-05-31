@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>腾讯Web服务API</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta http-equiv="Cache-Control" content="no-cache,must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+    <script src="./src/jquery.js"></script>
+</head>
+<body>
+<button id="showLocationBtn">解析地址获取坐标</button>
+
+<script>
+    var showLocationBtn = document.getElementById('showLocationBtn');
+    showLocationBtn.onclick = function () {
+        $.ajax({
+            type: "get",
+            async: false,
+            url: "http://apis.map.qq.com/ws/geocoder/v1/",
+            dataType: "jsonp",
+            jsonpCallback: 'showLocation',
+            data: {
+                address: "天津市华苑产业园区鑫茂科技园军民园6号楼A座301",
+                output: "jsonp",
+                key: "MPKBZ-OFYHO-OU3WY-S6YLK-I5WG7-XJFEK",
+                callback: "showLocation"
+            },
+            success: function (json) {
+                console.log(json);
+            },
+            error: function () {
+                console.log('fail');
+            }
+        });
+    }
+</script>
+</body>
+</html>
