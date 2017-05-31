@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>百度地图测试</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta http-equiv="Cache-Control" content="no-cache,must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+
+    <style type="text/css">
+        html {
+            width: 100%;
+            height: 100%
+        }
+
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #map_app {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        #map_app .header {
+            position: absolute;
+            width: 100%;
+            height: 50px;
+            top: 0;
+            left: 0;
+            line-height: 50px;
+            text-align: center;
+            background: #e6e6e6;
+            box-shadow: 0 0 4px rgba(0, 0, 0, .3);
+            z-index: 20;
+        }
+
+        #map_app .footer {
+            position: absolute;
+            width: 100%;
+            height: 50px;
+            bottom: 0;
+            left: 0;
+            line-height: 50px;
+            text-align: center;
+            background: #e6e6e6;
+            box-shadow: 0 0 4px rgba(0, 0, 0, .3);
+            z-index: 20;
+        }
+
+        #map_container {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            right: 0;
+            bottom: 50px;
+            z-index: 10;
+        }
+
+        #real_map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .site_marker {
+            background: yellow;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, .2);
+        }
+    </style>
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=dm65KD93tW9zmcZys9YvKIUj"></script>
+</head>
+
+<body>
+    <div id="map_app">
+        <div class="header">header</div>
+        <div id="map_container">
+            <div id="real_map"></div>
+        </div>
+        <div class="footer">footer</div>
+    </div>
+</body>
+
+<script>
+    //创建maker需要用的icon
+    var self_icon =  new BMap.Icon("./self_icon.png", new BMap.Size(23, 31), {
+        offset: new BMap.Size(12, 31)
+    });
+</script>
+
+<script>
+    //获取用户经纬度
+    function runGetPosition(callback) {
+        if (!runGetPosition.running) {
+            runGetPosition.running = true;
+            //开始定位用户自身位置
+            var geolocation = new BMap.Geolocation();
+            geolocation.getCurrentPosition(function (r) {
+                if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+                    var point = r.point;
+                    map.panTo(point);
+                    if (runGetPosition.self_marker != null) {
+                        map.removeOverlay(runGetPosition.self_marker);
+                    }
+                    if(init_marker){
+                        map.removeOverlay(init_marker);
+                    }
+                    //var self_marker = new BMap.Marker(point);
+                    //创建标注
+                    var self_marker = new BMap.Marker(point, {icon: self_icon});
+                    runGetPosition.self_marker = self_marker;
+                    //将标注插入地图
+                    map.addOverlay(self_marker);
+                } else {
+                    switch (this.getStatus()) {
+                        case BMAP_STATUS_CITY_LIST:
+                            console.log("城市列表");
+                            break;
+                        case BMAP_STATUS_UNKNOWN_LOCATION:
+                            console.log("位置结果未知");
+                            break;
+                        case BMAP_STATUS_UNKNOWN_ROUTE:
+                            console.log("导航结果未知");
+                            break;
+                        case BMAP_STATUS_INVALID_KEY:
+                            console.log("非法秘钥");
+                            break;
+                        case BMAP_STATUS_INVALID_REQUEST:
+                            console.log("非法请求");
+                            break;
+                        case BMAP_STATUS_PERMISSION_DENIED:
+                            console.log("没有权限");
+                            break;
+                        case BMAP_STATUS_SERVICE_UNAVAILABLE:
+                            console.log("服务不可用");
+                            break;
+                        case BMAP_STATUS_TIMEOUT:
+                            console.log("请求超时");
+                            break;
+                    }
+                }
+                runGetPosition.running = false;
+                callback && callback(this.getStatus());
+            }, {enableHighAccuracy: true});
+        }
+    }
+    runGetPosition.running = false;
+    runGetPosition.self_marker = null;
+</script>
+
+<script>
+    //自定义覆盖物
+    function SiteMarker(point, id) {
+        this.point = point;
+        this.width = 30;
+        this.height = 30;
+        this.id = id;
+        this.startPosX = 0;
+        this.startPosY = 0;
+        this.lastPosX = 0;
+        this.lastPosY = 0;
+    }
+    SiteMarker.prototype = new BMap.Overlay();
+
+    //当调用map.addOverlay方法时，会调用此方法
+    SiteMarker.prototype.initialize = function (map) {
+        var _this = this;
+        this.map = map;
+        var wrap = document.createElement("div");
+        wrap.style.position = "absolute";
+        wrap.style.width = this.width + "px";
+        wrap.style.height = this.height + "px";
+        wrap.style.zIndex = BMap.Overlay.getZIndex(this.point.lat);
+        wrap.innerHTML = this.id;
+        wrap.className = 'site_marker';
+        //将warp添加到覆盖物容器中
+        map.getPanes().markerPane.appendChild(wrap);
+        //保存warp实例
+        this.wrap = wrap;
+
+        wrap.addEventListener('click', function () {
+            _this.showDetail();
+        });
+        wrap.addEventListener('touchstart', function (e) {
+            _this.startPosX = e.touches ? e.touches[0].clientX : e.screenX;
+            _this.startPosY = e.touches ? e.touches[0].clientY : e.screenY;
+            _this.lastPosX = e.touches ? e.touches[0].clientX : e.screenX;
+            _this.lastPosY = e.touches ? e.touches[0].clientY : e.screenY;
+        });
+        wrap.addEventListener('touchmove', function (e) {
+            _this.lastPosX = e.touches ? e.touches[0].clientX : e.screenX;
+            _this.lastPosY = e.touches ? e.touches[0].clientY : e.screenY;
+        });
+        wrap.addEventListener('touchend', function (e) {
+            if (Math.abs(_this.lastPosX - _this.startPosX) < 5 && Math.abs(_this.lastPosY - _this.startPosY) < 5) {
+                _this.showDetail();
+            }
+        });
+
+        //一定要将添加到覆盖物容器的元素返回
+        //当调用map.removeOverlay或者map.clearOverlays方法时，会将此处返回的元素删除
+        return wrap;
+    };
+
+    SiteMarker.prototype.showDetail = function () {
+        var _this = this;
+        alert("当前标记点的id: " + _this.id);
+    };
+
+    //将覆盖物定位到正确的位置，每当地图状态发生变化都会重新调用
+    SiteMarker.prototype.draw = function () {
+        var position = this.map.pointToOverlayPixel(this.point);   //根据地理坐标转换为像素坐标，并设置给容器
+        this.wrap.style.left = position.x - this.width / 2 + "px";
+        this.wrap.style.top = position.y - this.width / 2 + "px";
+    };
+
+    //自定义覆盖物会自动继承Overlay的show和hide方法，方法会修改由initialize方法返回的DOM元素的style.display属性
+    //如果自定义覆盖物元素较为复杂，可以自己实现show和hide方法
+    SiteMarker.prototype.show = function () {
+        if (this.wrap) {
+            this.wrap.style.display = "";
+        }
+    };
+    SiteMarker.prototype.hide = function () {
+        if (this.wrap) {
+            this.wrap.style.display = "none";
+        }
+    };
+</script>
+
+<script>
+    //自定义定位控件
+    function MyGEOLocationController(){
+        this.defaultAnchor = BMAP_ANCHOR_TOP_LEFT;
+        this.defaultOffset = new BMap.Size(10, 10);
+    }
+    MyGEOLocationController.prototype = new BMap.Control();
+    MyGEOLocationController.prototype.initialize = function(map){
+        var warp = document.createElement("div");
+        warp.innerHTML = '定位';
+        warp.style.cursor = "pointer";
+        warp.style.border = "1px solid gray";
+        warp.style.backgroundColor = "white";
+        warp.addEventListener('click',function(){
+            if(!runGetPosition.running){
+                warp.innerHTML = '定位中...';
+                runGetPosition(function(status){
+                    console.log(status);
+                    warp.innerHTML = '定位';
+                })
+            }
+        });
+        map.getContainer().appendChild(warp);
+        this.warp = warp;
+        // 将DOM元素返回
+        return warp;
+    }
+</script>
+
+<script type="text/javascript">
+    //初始化地图
+    var map = new BMap.Map("real_map", {
+        minZoom: 12,
+        maxZoom: 18,
+        enableHighResolution: true
+    });
+    var init_point = new BMap.Point(117.210813, 39.14393);  //这里的坐标默认是天津中心坐标
+    map.centerAndZoom(init_point, 13);
+    var init_marker = new BMap.Marker(init_point, {icon: self_icon});  //创建初始的城市中心标注
+    map.addOverlay(init_marker);
+
+    //添加api自带的导航控件
+    map.addControl(new BMap.NavigationControl({
+        //靠左上角位置
+        anchor: BMAP_ANCHOR_BOTTOM_RIGHT,
+        //LARGE类型
+        type: BMAP_NAVIGATION_CONTROL_LARGE,
+        //启用显示定位
+        enableGeolocation: false
+    }));
+
+    //添加api自带的定位控件
+    /*var geolocationControl = new BMap.GeolocationControl({
+        showAddressBar:false,
+        enableAutoLocation:false
+    });
+    geolocationControl.addEventListener("locationSuccess", function(e){
+        console.log(e.target.wD);  //经纬度
+        console.log(e.addressComponent);  //地址对象
+    });
+    geolocationControl.addEventListener("locationError",function(e){
+        console.log(e.message);
+    });
+    map.addControl(geolocationControl);*/
+
+    //添加自定义定位控件
+    var myGEOController = new MyGEOLocationController();
+    map.addControl(myGEOController);
+
+    //监听地图回调
+    map.addEventListener("dragend", function () {
+        var center = map.getCenter();
+        console.log("地图中心点变更为：" + center.lng + ", " + center.lat);
+    });
+    map.addEventListener("zoomend", function () {
+        console.log("地图缩放至：" + this.getZoom() + "级");
+    });
+    map.addEventListener("click", function (e) {
+        console.log(e.point.lng + ", " + e.point.lat);
+    });
+
+    //向地图添加标记点
+    var site_marker = new SiteMarker(new BMap.Point(117.211813, 39.15393), 1);
+    var site_marker2 = new SiteMarker(new BMap.Point(117.209813, 39.13393), 2);
+    map.addOverlay(site_marker);
+    map.addOverlay(site_marker2);
+
+    //开始定位用户自身位置
+    if(!runGetPosition.running){
+        runGetPosition();
+    }
+</script>
+
+</html>
