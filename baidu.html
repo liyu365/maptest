@@ -306,18 +306,6 @@
     var myGEOController = new MyGEOLocationController();
     map.addControl(myGEOController);
 
-    //监听地图回调
-    map.addEventListener("dragend", function () {
-        var center = map.getCenter();
-        console.log("地图中心点变更为：" + center.lng + ", " + center.lat);
-    });
-    map.addEventListener("zoomend", function () {
-        console.log("地图缩放至：" + this.getZoom() + "级");
-    });
-    map.addEventListener("click", function (e) {
-        console.log(e.point.lng + ", " + e.point.lat);
-    });
-
     //向地图添加标记点
     var site_marker = new SiteMarker(new BMap.Point(117.211813, 39.15393), 1);
     var site_marker2 = new SiteMarker(new BMap.Point(117.209813, 39.13393), 2);
@@ -328,6 +316,23 @@
     if (!runGetPosition.running) {
         runGetPosition();
     }
+</script>
+
+<script>
+    //地图移动结束时触发此事件
+    map.addEventListener("moveend", function () {
+        var center = map.getCenter();
+        console.log("地图中心点变更为：" + center.lng + ", " + center.lat);
+        console.log(map.getBounds()); //地图可视区域，以地理坐标表示
+    });
+    //地图更改缩放级别结束时触发触发此事件
+    map.addEventListener("zoomend", function () {
+        console.log("地图缩放至：" + map.getZoom() + "级");
+    });
+    //左键单击地图时触发此事件
+    map.addEventListener("click", function (e) {
+        console.log(e.point.lng + ", " + e.point.lat);
+    });
 </script>
 
 </html>

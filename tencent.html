@@ -97,6 +97,7 @@
             var geolocation = new qq.maps.Geolocation("MPKBZ-OFYHO-OU3WY-S6YLK-I5WG7-XJFEK", "myapp");
             geolocation.getLocation(function (position) {
                 map.setCenter(new qq.maps.LatLng(position.lat, position.lng));
+                //map.panTo(new qq.maps.LatLng(position.lat, position.lng));
                 if (init_self_overlay) {
                     init_self_overlay.setMap(null);
                     init_self_overlay = null;
@@ -216,6 +217,7 @@
         zoom: 14,
         minZoom: 11,
         maxZoom: 15,
+        scrollwheel: true,
         //地图类型控件的初始化选项
         mapTypeControlOptions: {
             //地图类型控件中的类型选项，ROADMAP显示普通街道地图，SATELLITE显示卫星图像，HYBRID显示卫星图像上的主要街道透明层
@@ -323,5 +325,22 @@
     });
 
     marker.setIcon(markerIcon);
+</script>
+<script>
+    //当可视区域范围更改时会触发此事件
+    qq.maps.event.addListener(map, 'bounds_changed', function () {
+        console.log(map.getBounds());  //当前地图的视野范围
+    });
+    //当地图中心更改时会触发此事件
+    qq.maps.event.addListener(map, 'center_changed', function () {
+        console.log(map.getCenter());  //地图中心点
+    });
+    //当地图缩放级别更改时会触发此事件
+    qq.maps.event.addListener(map, 'zoom_changed', function () {
+        console.log(map.getZoom());  //地图缩放级别
+    });
+    qq.maps.event.addListener(map, 'click', function (e) {
+        console.log(e);  //此为事件对象，可以获取当前点击的经纬度
+    });
 </script>
 </html>
