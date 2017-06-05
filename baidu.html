@@ -110,6 +110,7 @@
             //开始定位用户自身位置
             var geolocation = new BMap.Geolocation();
             geolocation.getCurrentPosition(function (r) {
+                alert(this.getStatus());
                 if (this.getStatus() == BMAP_STATUS_SUCCESS) {
                     var point = r.point;
                     map.panTo(point);
