@@ -108,6 +108,7 @@
         if (!runGetPosition.running) {
             runGetPosition.running = true;
             //开始定位用户自身位置
+            alert('run');
             var geolocation = new BMap.Geolocation();
             geolocation.getCurrentPosition(function (r) {
                 alert(this.getStatus());
