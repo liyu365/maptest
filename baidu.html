@@ -82,14 +82,14 @@
 <body>
 <div id="map_app">
     <div class="header">
-        <!--<input id="address" type="text" value="天津市华苑产业园区鑫茂科技园军民园6号楼A座301">
-        <button onclick="codeAddress()">search</button>-->
+        <input id="address" type="text" value="天津市华苑产业园区鑫茂科技园军民园6号楼A座301">
+        <button onclick="codeAddress()">search</button>
     </div>
     <div id="map_container">
         <div id="real_map"></div>
     </div>
     <div class="footer">
-        <!--<button onclick="deleteOverlays();">清除自定义覆盖物</button>-->
+        <button onclick="deleteOverlays();">清除自定义覆盖物</button>
     </div>
 </div>
 </body>
@@ -115,13 +115,13 @@
                 if (this.getStatus() == BMAP_STATUS_SUCCESS) {
                     var point = r.point;
                     map.panTo(point);
-                    /*if (runGetPosition.self_marker != null) {
+                    if (runGetPosition.self_marker != null) {
                         map.removeOverlay(runGetPosition.self_marker);
                     }
                     if (init_self_marker) {
                         map.removeOverlay(init_self_marker);
-                    }*/
-                    //var self_marker = new BMap.Marker(point);
+                    }
+                    var self_marker = new BMap.Marker(point);
                     //创建标注
                     var self_marker = new BMap.Marker(point, {icon: self_icon});
                     runGetPosition.self_marker = self_marker;
@@ -165,7 +165,7 @@
 </script>
 
 <script>
-    /*//自定义覆盖物
+    //自定义覆盖物
     function SiteMarker(point, id) {
         this.point = point;
         this.width = 30;
@@ -241,11 +241,11 @@
         if (this.wrap) {
             this.wrap.style.display = "none";
         }
-    };*/
+    };
 </script>
 
 <script>
-    /*//自定义定位控件
+    //自定义定位控件
     function MyGEOLocationController() {
         this.defaultAnchor = BMAP_ANCHOR_TOP_LEFT;
         this.defaultOffset = new BMap.Size(10, 10);
@@ -270,7 +270,7 @@
         this.warp = warp;
         // 将DOM元素返回
         return warp;
-    }*/
+    }
 </script>
 
 <script type="text/javascript">
@@ -282,18 +282,18 @@
     });
     var init_point = new BMap.Point(117.210813, 39.14393);  //这里的坐标默认是天津中心坐标
     map.centerAndZoom(init_point, 13);
-    /*var init_self_marker = new BMap.Marker(init_point, {icon: self_icon});  //创建初始的城市中心标注
-    map.addOverlay(init_self_marker);*/
+    var init_self_marker = new BMap.Marker(init_point, {icon: self_icon});  //创建初始的城市中心标注
+    map.addOverlay(init_self_marker);
 
     //添加api自带的导航控件
-   /* map.addControl(new BMap.NavigationControl({
+    map.addControl(new BMap.NavigationControl({
         //靠左上角位置
         anchor: BMAP_ANCHOR_BOTTOM_RIGHT,
         //LARGE类型
         type: BMAP_NAVIGATION_CONTROL_LARGE,
         //启用显示定位
         enableGeolocation: false
-    }));*/
+    }));
 
     //添加api自带的定位控件
     /*var geolocationControl = new BMap.GeolocationControl({
@@ -310,7 +310,7 @@
      map.addControl(geolocationControl);*/
 
     //添加自定义定位控件
-    /*var myGEOController = new MyGEOLocationController();
+    var myGEOController = new MyGEOLocationController();
     map.addControl(myGEOController);
 
     //向地图添加标记点
@@ -320,7 +320,7 @@
     map.addOverlay(site_marker);
     site_overlay_arr.push(site_marker);
     map.addOverlay(site_marker2);
-    site_overlay_arr.push(site_marker2);*/
+    site_overlay_arr.push(site_marker2);
 
     //开始定位用户自身位置
     if (!runGetPosition.running) {
@@ -329,7 +329,7 @@
 </script>
 
 <script>
-    /*//地图移动结束时触发此事件
+    //地图移动结束时触发此事件
     map.addEventListener("moveend", function () {
         var center = map.getCenter();
         console.log("地图中心点变更为：" + center.lng + ", " + center.lat);
@@ -342,20 +342,20 @@
     //左键单击地图时触发此事件
     map.addEventListener("click", function (e) {
         console.log(e.point.lng + ", " + e.point.lat);
-    });*/
+    });
 </script>
 
 <script>
-    /*//清除所有site覆盖物
+    //清除所有site覆盖物
     function deleteOverlays() {
         while (site_overlay_arr.length > 0) {
             map.removeOverlay(site_overlay_arr.shift());
         }
-    }*/
+    }
 </script>
 
 <script>
-    /*//地址和经纬度之间进行转换服务
+    //地址和经纬度之间进行转换服务
     var myGeo = new BMap.Geocoder();
     function codeAddress() {
         var address = document.getElementById("address").value;
@@ -366,6 +366,6 @@
                 map.addOverlay(new BMap.Marker(point));
             }
         }, "天津市");
-    }*/
+    }
 </script>
 </html>
