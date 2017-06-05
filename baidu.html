@@ -115,12 +115,12 @@
                 if (this.getStatus() == BMAP_STATUS_SUCCESS) {
                     var point = r.point;
                     map.panTo(point);
-                    if (runGetPosition.self_marker != null) {
+                    /*if (runGetPosition.self_marker != null) {
                         map.removeOverlay(runGetPosition.self_marker);
                     }
                     if (init_self_marker) {
                         map.removeOverlay(init_self_marker);
-                    }
+                    }*/
                     //var self_marker = new BMap.Marker(point);
                     //创建标注
                     var self_marker = new BMap.Marker(point, {icon: self_icon});
@@ -157,7 +157,7 @@
                 }
                 runGetPosition.running = false;
                 callback && callback(this.getStatus());
-            }/*, {enableHighAccuracy: true}*/);
+            }, {enableHighAccuracy: true});
         }
     }
     runGetPosition.running = false;
@@ -165,7 +165,7 @@
 </script>
 
 <script>
-    //自定义覆盖物
+    /*//自定义覆盖物
     function SiteMarker(point, id) {
         this.point = point;
         this.width = 30;
@@ -241,11 +241,11 @@
         if (this.wrap) {
             this.wrap.style.display = "none";
         }
-    };
+    };*/
 </script>
 
 <script>
-    //自定义定位控件
+    /*//自定义定位控件
     function MyGEOLocationController() {
         this.defaultAnchor = BMAP_ANCHOR_TOP_LEFT;
         this.defaultOffset = new BMap.Size(10, 10);
@@ -270,7 +270,7 @@
         this.warp = warp;
         // 将DOM元素返回
         return warp;
-    }
+    }*/
 </script>
 
 <script type="text/javascript">
@@ -282,18 +282,18 @@
     });
     var init_point = new BMap.Point(117.210813, 39.14393);  //这里的坐标默认是天津中心坐标
     map.centerAndZoom(init_point, 13);
-    var init_self_marker = new BMap.Marker(init_point, {icon: self_icon});  //创建初始的城市中心标注
-    map.addOverlay(init_self_marker);
+    /*var init_self_marker = new BMap.Marker(init_point, {icon: self_icon});  //创建初始的城市中心标注
+    map.addOverlay(init_self_marker);*/
 
     //添加api自带的导航控件
-    map.addControl(new BMap.NavigationControl({
+   /* map.addControl(new BMap.NavigationControl({
         //靠左上角位置
         anchor: BMAP_ANCHOR_BOTTOM_RIGHT,
         //LARGE类型
         type: BMAP_NAVIGATION_CONTROL_LARGE,
         //启用显示定位
         enableGeolocation: false
-    }));
+    }));*/
 
     //添加api自带的定位控件
     /*var geolocationControl = new BMap.GeolocationControl({
@@ -310,7 +310,7 @@
      map.addControl(geolocationControl);*/
 
     //添加自定义定位控件
-    var myGEOController = new MyGEOLocationController();
+    /*var myGEOController = new MyGEOLocationController();
     map.addControl(myGEOController);
 
     //向地图添加标记点
@@ -320,7 +320,7 @@
     map.addOverlay(site_marker);
     site_overlay_arr.push(site_marker);
     map.addOverlay(site_marker2);
-    site_overlay_arr.push(site_marker2);
+    site_overlay_arr.push(site_marker2);*/
 
     //开始定位用户自身位置
     if (!runGetPosition.running) {
