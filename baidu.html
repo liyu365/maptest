@@ -128,28 +128,28 @@
                 } else {
                     switch (this.getStatus()) {
                         case BMAP_STATUS_CITY_LIST:
-                            console.log("城市列表");
+                            alert("城市列表");
                             break;
                         case BMAP_STATUS_UNKNOWN_LOCATION:
-                            console.log("位置结果未知");
+                            alert("位置结果未知");
                             break;
                         case BMAP_STATUS_UNKNOWN_ROUTE:
-                            console.log("导航结果未知");
+                            alert("导航结果未知");
                             break;
                         case BMAP_STATUS_INVALID_KEY:
-                            console.log("非法秘钥");
+                            alert("非法秘钥");
                             break;
                         case BMAP_STATUS_INVALID_REQUEST:
-                            console.log("非法请求");
+                            alert("非法请求");
                             break;
                         case BMAP_STATUS_PERMISSION_DENIED:
-                            console.log("没有权限");
+                            alert("没有权限");
                             break;
                         case BMAP_STATUS_SERVICE_UNAVAILABLE:
-                            console.log("服务不可用");
+                            alert("服务不可用");
                             break;
                         case BMAP_STATUS_TIMEOUT:
-                            console.log("请求超时");
+                            alert("请求超时");
                             break;
                     }
                 }
