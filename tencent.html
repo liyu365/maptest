@@ -85,7 +85,9 @@
     <div id="map_container">
         <div id="real_map"></div>
     </div>
-    <div class="footer">footer</div>
+    <div class="footer">
+        <button onclick="deleteOverlays();">清除自定义覆盖物</button>
+    </div>
 </div>
 </body>
 
@@ -236,10 +238,13 @@
     init_self_overlay.setMap(map);
 
     //向地图添加site覆盖物
+    var site_overlay_arr = [];
     var site_overlay1 = new SiteOverlay(new qq.maps.LatLng(39.12668, 117.21006), 1);
     site_overlay1.setMap(map);
+    site_overlay_arr.push(site_overlay1);
     var site_overlay2 = new SiteOverlay(new qq.maps.LatLng(39.14668, 117.21006), 2);
     site_overlay2.setMap(map);
+    site_overlay_arr.push(site_overlay2);
 
     if (!runGetPosition.running) {
         runGetPosition();
@@ -326,6 +331,7 @@
 
     marker.setIcon(markerIcon);
 </script>
+
 <script>
     //当可视区域范围更改时会触发此事件
     qq.maps.event.addListener(map, 'bounds_changed', function () {
@@ -342,5 +348,14 @@
     qq.maps.event.addListener(map, 'click', function (e) {
         console.log(e);  //此为事件对象，可以获取当前点击的经纬度
     });
+</script>
+
+<script>
+    //清除所有site覆盖物
+    function deleteOverlays() {
+        while (site_overlay_arr.length > 0) {
+            site_overlay_arr.shift().setMap(null);
+        }
+    }
 </script>
 </html>

@@ -85,7 +85,9 @@
     <div id="map_container">
         <div id="real_map"></div>
     </div>
-    <div class="footer">footer</div>
+    <div class="footer">
+        <button onclick="deleteOverlays();">清除自定义覆盖物</button>
+    </div>
 </div>
 </body>
 
@@ -307,10 +309,13 @@
     map.addControl(myGEOController);
 
     //向地图添加标记点
+    var site_overlay_arr = [];
     var site_marker = new SiteMarker(new BMap.Point(117.211813, 39.15393), 1);
     var site_marker2 = new SiteMarker(new BMap.Point(117.209813, 39.13393), 2);
     map.addOverlay(site_marker);
+    site_overlay_arr.push(site_marker);
     map.addOverlay(site_marker2);
+    site_overlay_arr.push(site_marker2);
 
     //开始定位用户自身位置
     if (!runGetPosition.running) {
@@ -335,4 +340,12 @@
     });
 </script>
 
+<script>
+    //清除所有site覆盖物
+    function deleteOverlays() {
+        while (site_overlay_arr.length > 0) {
+            map.removeOverlay(site_overlay_arr.shift());
+        }
+    }
+</script>
 </html>
