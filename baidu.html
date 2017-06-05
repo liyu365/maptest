@@ -108,7 +108,7 @@
         if (!runGetPosition.running) {
             runGetPosition.running = true;
             //开始定位用户自身位置
-            alert('run');
+            alert('run!');
             var geolocation = new BMap.Geolocation();
             geolocation.getCurrentPosition(function (r) {
                 alert(this.getStatus());
@@ -157,7 +157,7 @@
                 }
                 runGetPosition.running = false;
                 callback && callback(this.getStatus());
-            }, {enableHighAccuracy: true});
+            }/*, {enableHighAccuracy: true}*/);
         }
     }
     runGetPosition.running = false;
