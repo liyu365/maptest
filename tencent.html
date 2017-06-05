@@ -81,7 +81,10 @@
 </head>
 <body>
 <div id="map_app">
-    <div class="header">header</div>
+    <div class="header">
+        <input id="address" type="text" value="天津市华苑产业园区鑫茂科技园军民园6号楼A座301">
+        <button onclick="codeAddress()">search</button>
+    </div>
     <div id="map_container">
         <div id="real_map"></div>
     </div>
@@ -356,6 +359,32 @@
         while (site_overlay_arr.length > 0) {
             site_overlay_arr.shift().setMap(null);
         }
+    }
+</script>
+
+<script>
+    //地址和经纬度之间进行转换服务
+    var geocoder = new qq.maps.Geocoder();
+    function codeAddress() {
+        var address = document.getElementById("address").value;
+        //对指定地址进行解析
+        geocoder.getLocation(address);
+        //设置服务请求成功的回调函数
+        geocoder.setComplete(function (result) {
+            map.setCenter(result.detail.location);
+            var marker = new qq.maps.Marker({
+                map: map,
+                position: result.detail.location
+            });
+            //点击Marker会弹出反查结果
+            qq.maps.event.addListener(marker, 'click', function () {
+                alert("坐标地址为： " + result.detail.location);
+            });
+        });
+        //若服务请求失败，则运行以下函数
+        geocoder.setError(function () {
+            alert("出错了，请输入正确的地址！！！");
+        });
     }
 </script>
 </html>
