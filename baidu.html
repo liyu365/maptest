@@ -82,14 +82,14 @@
 <body>
 <div id="map_app">
     <div class="header">
-        <input id="address" type="text" value="天津市华苑产业园区鑫茂科技园军民园6号楼A座301">
-        <button onclick="codeAddress()">search</button>
+        <!--<input id="address" type="text" value="天津市华苑产业园区鑫茂科技园军民园6号楼A座301">
+        <button onclick="codeAddress()">search</button>-->
     </div>
     <div id="map_container">
         <div id="real_map"></div>
     </div>
     <div class="footer">
-        <button onclick="deleteOverlays();">清除自定义覆盖物</button>
+        <!--<button onclick="deleteOverlays();">清除自定义覆盖物</button>-->
     </div>
 </div>
 </body>
@@ -329,7 +329,7 @@
 </script>
 
 <script>
-    //地图移动结束时触发此事件
+    /*//地图移动结束时触发此事件
     map.addEventListener("moveend", function () {
         var center = map.getCenter();
         console.log("地图中心点变更为：" + center.lng + ", " + center.lat);
@@ -342,20 +342,20 @@
     //左键单击地图时触发此事件
     map.addEventListener("click", function (e) {
         console.log(e.point.lng + ", " + e.point.lat);
-    });
+    });*/
 </script>
 
 <script>
-    //清除所有site覆盖物
+    /*//清除所有site覆盖物
     function deleteOverlays() {
         while (site_overlay_arr.length > 0) {
             map.removeOverlay(site_overlay_arr.shift());
         }
-    }
+    }*/
 </script>
 
 <script>
-    //地址和经纬度之间进行转换服务
+    /*//地址和经纬度之间进行转换服务
     var myGeo = new BMap.Geocoder();
     function codeAddress() {
         var address = document.getElementById("address").value;
@@ -366,6 +366,6 @@
                 map.addOverlay(new BMap.Marker(point));
             }
         }, "天津市");
-    }
+    }*/
 </script>
 </html>
