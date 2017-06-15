@@ -76,7 +76,8 @@
             box-shadow: 2px 2px 4px rgba(0, 0, 0, .2);
         }
     </style>
-    <script charset="utf-8" src="https://map.qq.com/api/js?v=2.exp&key=MPKBZ-OFYHO-OU3WY-S6YLK-I5WG7-XJFEK"></script>
+    <script charset="utf-8"
+            src="https://map.qq.com/api/js?v=2.exp&key=MPKBZ-OFYHO-OU3WY-S6YLK-I5WG7-XJFEK&libraries=geometry"></script>
     <script charset="utf-8" src="https://3gimg.qq.com/lightmap/components/geolocation/geolocation.min.js "></script>
 </head>
 <body>
@@ -339,6 +340,7 @@
     //当可视区域范围更改时会触发此事件
     qq.maps.event.addListener(map, 'bounds_changed', function () {
         console.log(map.getBounds());  //当前地图的视野范围
+        console.log('半径为' + qq.maps.geometry.spherical.computeDistanceBetween(map.getBounds().getNorthEast(), map.getCenter()));
     });
     //当地图中心更改时会触发此事件
     qq.maps.event.addListener(map, 'center_changed', function () {
